@@ -1,5 +1,13 @@
+//! Globally sets environment variables (and not just for the current process).
+//! Example:
+//! ```rust
+//! use globalenv::set_var;
+//! set_var("ENVTEST", "TESTVALUE").unwrap();
+//! ```
+
 use std::{process::Command, io};
 
+/// Sets a global environment variable. Support for Windows. Linux support TBD.
 pub fn set_var(var: &str, value: &str) -> io::Result<()> {
     Command::new("cmd")
         .args(&["/C", "setx", var, value])
