@@ -5,6 +5,7 @@ authors = ["Nicolas BAUW <nbauw@hotmail.com>"]
 edition = "2018"
 description = "Globally sets environment variables (and not just for the current process)"
 keywords = ["environment", "variable", "global"]
+categories = ["config", "os"]
 license = "GPL-3.0"
 repository = "https://github.com/nicolasbauw/globalenv"
 readme = "README.md"
