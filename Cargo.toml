@@ -3,10 +3,13 @@ name = "globalenv"
 version = "0.1.0"
 authors = ["Nicolas BAUW <nbauw@hotmail.com>"]
 edition = "2018"
+description = "Globally sets environment variables (and not just for the current process)"
+keywords = ["environment", "variable", "global"]
+license = "GPL-3.0"
+repository = "https://github.com/nicolasbauw/globalenv"
+readme = "README.md"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
-[dependencies]
 
 [dev-dependencies]
 winreg = "0.7"
