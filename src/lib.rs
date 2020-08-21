@@ -5,14 +5,16 @@
 //! set_var("ENVTEST", "TESTVALUE").unwrap();
 //! ```
 
-use std::{process::Command, io};
+use std::io;
+use winreg::enums::*;
+use winreg::RegKey;
 
 /// Sets a global environment variable. Support for Windows. Linux support TBD.
 pub fn set_var(var: &str, value: &str) -> io::Result<()> {
-    Command::new("cmd")
-        .args(&["/C", "setx", var, value])
-        .output()?;
-        Ok(())
+    let hkcu = RegKey::predef(HKEY_CURRENT_USER);
+    let key = hkcu.open_subkey_with_flags("Environment", KEY_SET_VALUE)?;
+    key.set_value(var, &value)?;
+    Ok(())
 }
 
 #[cfg(test)]
