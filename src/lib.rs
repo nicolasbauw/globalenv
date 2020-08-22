@@ -37,7 +37,7 @@ mod tests {
     use winreg::RegKey;
     use std::env;
     #[test]
-    fn set_global() {
+    fn is_set_globally() {
         crate::set_var("ENVTEST", "TESTVALUE").unwrap();
         let hkcu = RegKey::predef(HKEY_CURRENT_USER);
         let key = hkcu
@@ -48,13 +48,13 @@ mod tests {
     }
 
     #[test]
-    fn set_local() {
+    fn is_set_locally() {
         assert_eq!(String::from("TESTVALUE"), env::var("ENVTEST").unwrap());
     }
 
     #[test]
     #[should_panic]
-    fn unset_global() {
+    fn is_unset_globally() {
         crate::unset_var("ENVTEST").unwrap();
         let hkcu = RegKey::predef(HKEY_CURRENT_USER);
         let key = hkcu
@@ -65,7 +65,7 @@ mod tests {
 
     #[test]
     #[should_panic]
-    fn unset_local() {
+    fn is_unset_locally() {
         env::var("ENVTEST").unwrap();
     }
 }
