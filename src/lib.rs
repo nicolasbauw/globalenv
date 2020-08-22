@@ -6,7 +6,7 @@
 //! unset_var("ENVTEST").unwrap();
 //! ```
 
-use std::io;
+use std::{io, env};
 use winreg::enums::*;
 use winreg::RegKey;
 
@@ -15,6 +15,7 @@ pub fn set_var(var: &str, value: &str) -> io::Result<()> {
     let hkcu = RegKey::predef(HKEY_CURRENT_USER);
     let key = hkcu.open_subkey_with_flags("Environment", KEY_SET_VALUE)?;
     key.set_value(var, &value)?;
+    env::set_var(var, value);
     Ok(())
 }
 
@@ -23,6 +24,7 @@ pub fn unset_var(var: &str) -> io::Result<()> {
     let hkcu = RegKey::predef(HKEY_CURRENT_USER);
     let key = hkcu.open_subkey_with_flags("Environment", KEY_SET_VALUE)?;
     key.delete_value(var)?;
+    env::remove_var(var);
     Ok(())
 }
 
