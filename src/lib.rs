@@ -28,12 +28,16 @@ pub fn unset_var(var: &str) -> io::Result<()> {
     Ok(())
 }
 
+/* Run the tests in a single thread context !
+$env:RUST_TEST_THREADS=1; cargo test */
+
 #[cfg(test)]
 mod tests {
     use winreg::enums::*;
     use winreg::RegKey;
+    use std::env;
     #[test]
-    fn set() {
+    fn set_global() {
         crate::set_var("ENVTEST", "TESTVALUE").unwrap();
         let hkcu = RegKey::predef(HKEY_CURRENT_USER);
         let key = hkcu
@@ -44,13 +48,24 @@ mod tests {
     }
 
     #[test]
+    fn set_local() {
+        assert_eq!(String::from("TESTVALUE"), env::var("ENVTEST").unwrap());
+    }
+
+    #[test]
     #[should_panic]
-    fn unset() {
+    fn unset_global() {
         crate::unset_var("ENVTEST").unwrap();
         let hkcu = RegKey::predef(HKEY_CURRENT_USER);
         let key = hkcu
             .open_subkey_with_flags("Environment", KEY_READ)
             .unwrap();
         let _: String = key.get_value("ENVTEST").unwrap();
+    }
+
+    #[test]
+    #[should_panic]
+    fn unset_local() {
+        env::var("ENVTEST").unwrap();
     }
 }
