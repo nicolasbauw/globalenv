@@ -10,7 +10,7 @@ use std::{io, env};
 use winreg::enums::*;
 use winreg::RegKey;
 
-/// Sets a global environment variable. Support for Windows. Linux support TBD.
+/// Sets a global environment variable, usable in current process without reload. Support for Windows. Linux support TBD.
 pub fn set_var(var: &str, value: &str) -> io::Result<()> {
     let hkcu = RegKey::predef(HKEY_CURRENT_USER);
     let key = hkcu.open_subkey_with_flags("Environment", KEY_SET_VALUE)?;
@@ -19,7 +19,7 @@ pub fn set_var(var: &str, value: &str) -> io::Result<()> {
     Ok(())
 }
 
-/// Unsets an environment variable. Support for Windows. Linux support TBD.
+/// Unsets both global and local (process) environment variable. Support for Windows. Linux support TBD.
 pub fn unset_var(var: &str) -> io::Result<()> {
     let hkcu = RegKey::predef(HKEY_CURRENT_USER);
     let key = hkcu.open_subkey_with_flags("Environment", KEY_SET_VALUE)?;
