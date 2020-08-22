@@ -6,7 +6,7 @@
 Globally set or unset environment variables (and not just for the current process).
 Example:
 ```rust
-use globalenv::set_var;
+use globalenv::{set_var, unset_var};
 set_var("ENVTEST", "TESTVALUE").unwrap();
 unset_var("ENVTEST").unwrap();
 ```
