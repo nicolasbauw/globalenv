@@ -6,11 +6,26 @@
 //! unset_var("ENVTEST").unwrap();
 //! ```
 
+#[cfg(target_os = "windows")]
 use std::{io, env};
+#[cfg(target_os = "windows")]
 use winreg::enums::*;
+#[cfg(target_os = "windows")]
 use winreg::RegKey;
 
+#[cfg(target_os = "macos")]
+use std::fs;
+#[cfg(target_os = "macos")]
+use std::io;
+#[cfg(target_os = "macos")]
+use std::io::prelude::*;
+#[cfg(target_os = "macos")]
+use std::path::Path;
+#[cfg(target_os = "macos")]
+use std::fs::OpenOptions;
+
 /// Sets a global environment variable, usable in current process without reload. Support for Windows. Linux support TBD.
+#[cfg(target_os = "windows")]
 pub fn set_var(var: &str, value: &str) -> io::Result<()> {
     let hkcu = RegKey::predef(HKEY_CURRENT_USER);
     let key = hkcu.open_subkey_with_flags("Environment", KEY_SET_VALUE)?;
@@ -19,7 +34,40 @@ pub fn set_var(var: &str, value: &str) -> io::Result<()> {
     Ok(())
 }
 
+#[cfg(target_os = "macos")]
+pub fn set_var(var: &str, value: &str) -> io::Result<()> {
+    // Reading the env file
+    let env = fs::read_to_string("/Users/nicolasb/.zshenv").unwrap();
+
+    // Building the "export" line according to requested parameters
+    let mut v = String::from("export ");
+    v.push_str(var);
+    v.push_str("=");
+    v.push_str(value);
+    v.push_str("\n");
+
+    // Already present ? we don't do anything
+    if env.contains(&v) { return Ok(()); }
+
+    // Not present ? we add it to the env file
+    let f = Path::new("/Users/nicolasb/.zshenv");
+    match OpenOptions::new()
+        .append(true)
+        .create(true)
+        .open(f) {
+            Ok(mut l) => {
+                match l.write(v.as_bytes()) {
+                    Ok(_) => (),
+                    Err(e) => eprintln!("{}", e)
+                };
+            },
+            Err(_e) => eprintln!("Could not open file")
+        };
+    Ok(())
+}
+
 /// Unsets both global and local (process) environment variable. Support for Windows. Linux support TBD.
+#[cfg(target_os = "windows")]
 pub fn unset_var(var: &str) -> io::Result<()> {
     let hkcu = RegKey::predef(HKEY_CURRENT_USER);
     let key = hkcu.open_subkey_with_flags("Environment", KEY_SET_VALUE)?;
