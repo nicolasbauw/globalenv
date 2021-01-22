@@ -18,7 +18,9 @@ use std::{ fs, io::prelude::*, path::Path, fs::OpenOptions };
 pub fn set_var(var: &str, value: &str) -> io::Result<()> {
     let hkcu = RegKey::predef(HKEY_CURRENT_USER);
     let key = hkcu.open_subkey_with_flags("Environment", KEY_SET_VALUE)?;
+    // Setting the variable globally
     key.set_value(var, &value)?;
+    // Additionnaly, we set the env for current shell
     env::set_var(var, value);
     Ok(())
 }
@@ -38,13 +40,16 @@ pub fn set_var(var: &str, value: &str) -> io::Result<()> {
     // Already present ? we don't do anything
     if env.contains(&v) { return Ok(()); }
 
-    // Not present ? we add it to the env file
+    // Not present ? we add it to the env file to set it globally
     let f = Path::new("/Users/nicolasb/.zshenv");
     let mut l = OpenOptions::new()
         .append(true)
         .create(true)
         .open(f)?;
     l.write(v.as_bytes())?;
+
+    // Additionnaly, we set the env for current shell
+    env::set_var(var, value);
             
     Ok(())
 }
