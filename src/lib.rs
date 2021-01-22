@@ -6,13 +6,12 @@
 //! unset_var("ENVTEST").unwrap();
 //! ```
 
-#[cfg(target_os = "windows")]
 use std::{io, env};
 #[cfg(target_os = "windows")]
 use winreg::{ enums::*, RegKey };
 
 #[cfg(target_os = "macos")]
-use std::{ fs, io, io::prelude::*, path::Path, fs::OpenOptions };
+use std::{ fs, io::prelude::*, path::Path, fs::OpenOptions };
 
 /// Sets a global environment variable, usable in current process without reload. Support for Windows. Linux support TBD.
 #[cfg(target_os = "windows")]
