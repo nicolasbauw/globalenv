@@ -9,20 +9,10 @@
 #[cfg(target_os = "windows")]
 use std::{io, env};
 #[cfg(target_os = "windows")]
-use winreg::enums::*;
-#[cfg(target_os = "windows")]
-use winreg::RegKey;
+use winreg::{ enums::*, RegKey };
 
 #[cfg(target_os = "macos")]
-use std::fs;
-#[cfg(target_os = "macos")]
-use std::io;
-#[cfg(target_os = "macos")]
-use std::io::prelude::*;
-#[cfg(target_os = "macos")]
-use std::path::Path;
-#[cfg(target_os = "macos")]
-use std::fs::OpenOptions;
+use std::{ fs, io, io::prelude::*, path::Path, fs::OpenOptions };
 
 /// Sets a global environment variable, usable in current process without reload. Support for Windows. Linux support TBD.
 #[cfg(target_os = "windows")]
@@ -74,6 +64,7 @@ pub fn unset_var(var: &str) -> io::Result<()> {
 $env:RUST_TEST_THREADS=1; cargo test */
 
 #[cfg(test)]
+#[cfg(target_os = "windows")]
 mod tests {
     use winreg::enums::*;
     use winreg::RegKey;
@@ -110,4 +101,9 @@ mod tests {
     fn is_unset_locally() {
         env::var("ENVTEST").unwrap();
     }
+}
+
+#[cfg(target_os = "macos")]
+mod tests {
+
 }
