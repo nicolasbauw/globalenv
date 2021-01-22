@@ -28,7 +28,7 @@ pub fn set_var(var: &str, value: &str) -> io::Result<()> {
 #[cfg(target_os = "macos")]
 pub fn set_var(var: &str, value: &str) -> io::Result<()> {
     // Reading the env file
-    let env = fs::read_to_string("/Users/nicolasb/.zshenv").unwrap();
+    let env = fs::read_to_string("/Users/nicolasb/.zshenv")?;
 
     // Building the "export" line according to requested parameters
     let mut v = String::from("export ");
@@ -37,8 +37,8 @@ pub fn set_var(var: &str, value: &str) -> io::Result<()> {
     v.push_str(value);
     v.push_str("\n");
 
-    // Already present ? we don't do anything
-    if env.contains(&v) { return Ok(()); }
+    // Already present ? we just set the variable for current shell
+    if env.contains(&v) { env::set_var(var, value); return Ok(()); }
 
     // Not present ? we add it to the env file to set it globally
     let f = Path::new("/Users/nicolasb/.zshenv");
