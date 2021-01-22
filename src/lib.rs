@@ -41,12 +41,12 @@ pub fn set_var(var: &str, value: &str) -> io::Result<()> {
     if env.contains(&v) { env::set_var(var, value); return Ok(()); }
 
     // Not present ? we add it to the env file to set it globally
-    let f = Path::new("/Users/nicolasb/.zshenv");
-    let mut l = OpenOptions::new()
+    let env_filename = Path::new("/Users/nicolasb/.zshenv");
+    let mut env_file = OpenOptions::new()
         .append(true)
         .create(true)
-        .open(f)?;
-    l.write(v.as_bytes())?;
+        .open(env_filename)?;
+    env_file.write(v.as_bytes())?;
 
     // Additionnaly, we set the env for current shell
     env::set_var(var, value);
