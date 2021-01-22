@@ -51,18 +51,12 @@ pub fn set_var(var: &str, value: &str) -> io::Result<()> {
 
     // Not present ? we add it to the env file
     let f = Path::new("/Users/nicolasb/.zshenv");
-    match OpenOptions::new()
+    let mut l = OpenOptions::new()
         .append(true)
         .create(true)
-        .open(f) {
-            Ok(mut l) => {
-                match l.write(v.as_bytes()) {
-                    Ok(_) => (),
-                    Err(e) => eprintln!("{}", e)
-                };
-            },
-            Err(_e) => eprintln!("Could not open file")
-        };
+        .open(f)?;
+    l.write(v.as_bytes())?;
+            
     Ok(())
 }
 
