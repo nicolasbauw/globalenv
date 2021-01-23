@@ -30,18 +30,18 @@ pub fn set_var(var: &str, value: &str) -> io::Result<()> {
     // Getting env and building env file path
     let homedir = env::var("HOME").unwrap();
     let shell = env::var("SHELL").unwrap();
-    let shellsuffix = match shell.as_str() {
+    let envfile = match shell.as_str() {
         "/bin/zsh" => ".zshenv",
         _ => ".bashrc"
     };
 
-    let mut envpath = homedir;
-    envpath.push_str("/");
-    envpath.push_str(shellsuffix);
-    println!("{}", envpath);
+    let mut envfilepath = homedir;
+    envfilepath.push_str("/");
+    envfilepath.push_str(envfile);
+    println!("{}", envfilepath);
 
     // Reading the env file
-    let env = fs::read_to_string(&envpath)?;
+    let env = fs::read_to_string(&envfilepath)?;
 
     // Building the "export" line according to requested parameters
     let mut v = String::from("export ");
@@ -54,7 +54,7 @@ pub fn set_var(var: &str, value: &str) -> io::Result<()> {
     if env.contains(&v) { println!("Already set in env file"); env::set_var(var, value); return Ok(()); }
 
     // Not present ? we add it to the env file to set it globally
-    let env_filename = Path::new(&envpath);
+    let env_filename = Path::new(&envfilepath);
     let mut env_file = OpenOptions::new()
         .append(true)
         .create(true)
