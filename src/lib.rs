@@ -10,7 +10,7 @@ use std::{io, env};
 #[cfg(target_os = "windows")]
 use winreg::{ enums::*, RegKey };
 
-#[cfg(target_os = "macos")]
+#[cfg(target_family = "unix")]
 use std::{ fs, io::prelude::*, path::Path, fs::OpenOptions };
 
 /// Sets a global environment variable, usable in current process without reload. Support for Windows. Linux support TBD.
@@ -25,7 +25,7 @@ pub fn set_var(var: &str, value: &str) -> io::Result<()> {
     Ok(())
 }
 
-#[cfg(target_os = "macos")]
+#[cfg(target_family = "unix")]
 pub fn set_var(var: &str, value: &str) -> io::Result<()> {
     // Getting env and building env file path
     let homedir = env::var("HOME").unwrap();
@@ -121,7 +121,7 @@ mod tests {
     }
 }
 
-#[cfg(target_os = "macos")]
+#[cfg(target_family = "unix")]
 mod tests {
 
 }
