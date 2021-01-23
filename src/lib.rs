@@ -27,8 +27,21 @@ pub fn set_var(var: &str, value: &str) -> io::Result<()> {
 
 #[cfg(target_os = "macos")]
 pub fn set_var(var: &str, value: &str) -> io::Result<()> {
+    // Getting env and building env file path
+    let homedir = env::var("HOME").unwrap();
+    let shell = env::var("SHELL").unwrap();
+    let shellsuffix = match shell.as_str() {
+        "/bin/zsh" => ".zshenv",
+        _ => ".bashrc"
+    };
+
+    let mut envpath = homedir;
+    envpath.push_str("/");
+    envpath.push_str(shellsuffix);
+    println!("{}", envpath);
+
     // Reading the env file
-    let env = fs::read_to_string("/Users/nicolasb/.zshenv")?;
+    let env = fs::read_to_string(&envpath)?;
 
     // Building the "export" line according to requested parameters
     let mut v = String::from("export ");
@@ -38,15 +51,16 @@ pub fn set_var(var: &str, value: &str) -> io::Result<()> {
     v.push_str("\n");
 
     // Already present ? we just set the variable for current shell
-    if env.contains(&v) { env::set_var(var, value); return Ok(()); }
+    if env.contains(&v) { println!("Already set in env file"); env::set_var(var, value); return Ok(()); }
 
     // Not present ? we add it to the env file to set it globally
-    let env_filename = Path::new("/Users/nicolasb/.zshenv");
+    let env_filename = Path::new(&envpath);
     let mut env_file = OpenOptions::new()
         .append(true)
         .create(true)
         .open(env_filename)?;
     env_file.write(v.as_bytes())?;
+    println!("Set in env file");
 
     // Additionnaly, we set the env for current shell
     env::set_var(var, value);
