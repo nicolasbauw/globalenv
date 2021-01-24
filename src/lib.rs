@@ -43,21 +43,21 @@ pub fn set_var(var: &str, value: &str) -> io::Result<()> {
     let env = fs::read_to_string(&envfilepath)?;
 
     // Building the "export" line according to requested parameters
-    let mut v = String::from("export ");
-    v.push_str(var);
-    v.push_str("=");
-    v.push_str(value);
-    v.push_str("\n");
+    let mut export = String::from("export ");
+    export.push_str(var);
+    export.push_str("=");
+    export.push_str(value);
+    export.push_str("\n");
 
     // Already present ? we just set the variable for current shell
-    if env.contains(&v) { println!("Already set in env file"); env::set_var(var, value); return Ok(()); }
+    if env.contains(&export) { println!("Already set in env file"); env::set_var(var, value); return Ok(()); }
 
     // Not present ? we append the env file to set it globally
     let mut env_file = OpenOptions::new()
         .append(true)
         .create(true)
         .open(envfilepath)?;
-    env_file.write(v.as_bytes())?;
+    env_file.write(export.as_bytes())?;
     println!("Set in env file");
 
     // Additionnaly, we set the env for current shell
