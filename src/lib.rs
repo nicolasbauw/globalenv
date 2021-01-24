@@ -32,7 +32,8 @@ pub fn set_var(var: &str, value: &str) -> io::Result<()> {
     let shell = env::var("SHELL").unwrap();
     let envfile = match shell.as_str() {
         "/bin/zsh" => ".zshenv",
-        _ => ".bashrc"
+        "/bin/bash" => ".bashrc",
+        _ => "TDB"
     };
 
     let mut envfilepath = PathBuf::from(homedir);
