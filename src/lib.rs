@@ -11,7 +11,7 @@ use std::{io, env};
 use winreg::{ enums::*, RegKey };
 
 #[cfg(target_family = "unix")]
-use std::{ fs, io::prelude::*, path::Path, fs::OpenOptions };
+use std::{ fs, io::prelude::*, path::{Path, PathBuf}, fs::OpenOptions };
 
 /// Sets a global environment variable, usable in current process without reload. Support for Windows. Linux support TBD.
 #[cfg(target_os = "windows")]
@@ -35,10 +35,9 @@ pub fn set_var(var: &str, value: &str) -> io::Result<()> {
         _ => ".bashrc"
     };
 
-    let mut envfilepath = homedir;
-    envfilepath.push_str("/");
-    envfilepath.push_str(envfile);
-    println!("{}", envfilepath);
+    let mut envfilepath = PathBuf::from(homedir);
+    envfilepath.push(envfile);
+    println!("{:?}", envfilepath);
 
     // Reading the env file
     let env = fs::read_to_string(&envfilepath)?;
