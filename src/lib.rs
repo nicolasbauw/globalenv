@@ -11,7 +11,7 @@ use std::{io, env};
 use winreg::{ enums::*, RegKey };
 
 #[cfg(target_family = "unix")]
-use std::{ fs, io::prelude::*, path::{Path, PathBuf}, fs::OpenOptions };
+use std::{ fs, io::prelude::*, path::PathBuf, fs::OpenOptions };
 
 /// Sets a global environment variable, usable in current process without reload. Support for Windows. Linux support TBD.
 #[cfg(target_os = "windows")]
@@ -53,11 +53,10 @@ pub fn set_var(var: &str, value: &str) -> io::Result<()> {
     if env.contains(&v) { println!("Already set in env file"); env::set_var(var, value); return Ok(()); }
 
     // Not present ? we add it to the env file to set it globally
-    let env_filename = Path::new(&envfilepath);
     let mut env_file = OpenOptions::new()
         .append(true)
         .create(true)
-        .open(env_filename)?;
+        .open(envfilepath)?;
     env_file.write(v.as_bytes())?;
     println!("Set in env file");
 
