@@ -52,7 +52,7 @@ pub fn set_var(var: &str, value: &str) -> io::Result<()> {
     // Already present ? we just set the variable for current shell
     if env.contains(&v) { println!("Already set in env file"); env::set_var(var, value); return Ok(()); }
 
-    // Not present ? we add it to the env file to set it globally
+    // Not present ? we append the env file to set it globally
     let mut env_file = OpenOptions::new()
         .append(true)
         .create(true)
