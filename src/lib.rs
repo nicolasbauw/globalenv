@@ -118,7 +118,8 @@ pub fn unset_var(var: &str) -> io::Result<()> {
 }
 
 /* Run the tests in a single thread context !
-$env:RUST_TEST_THREADS=1; cargo test */
+$env:RUST_TEST_THREADS=1; cargo test
+RUST_TEST_THREADS=1 cargo test */
 
 #[cfg(target_os = "windows")]
 #[cfg(test)]
@@ -162,37 +163,32 @@ mod tests {
 
 #[cfg(target_family = "unix")]
 mod tests {
-    use std::{ env, fs, io::prelude::*, path::PathBuf, fs::OpenOptions };
     #[test]
     fn is_set_globally() {
-    crate::set_var("ENVTEST", "TESTVALUE").unwrap();
+        crate::set_var("ENVTEST", "TESTVALUE").unwrap();
+        // Getting env and building env file path
+        let homedir = crate::env::var("HOME").unwrap();
+        let shell = crate::env::var("SHELL").unwrap();
+        let envfile = match shell.as_str() {
+            "/bin/zsh" => ".zshenv",
+            "/bin/bash" => ".bashrc",
+            _ => "TDB"
+        };
 
-    // Getting env and building env file path
-    let homedir = env::var("HOME").unwrap();
-    let shell = env::var("SHELL").unwrap();
-    let envfile = match shell.as_str() {
-        "/bin/zsh" => ".zshenv",
-        "/bin/bash" => ".bashrc",
-        _ => "TDB"
-    };
+        let mut envfilepath = crate::PathBuf::from(homedir);
+        envfilepath.push(envfile);
 
-    let mut envfilepath = PathBuf::from(homedir);
-    envfilepath.push(envfile);
-    println!("{:?}", envfilepath);
+        // Reading the env file
+        let env = crate::fs::read_to_string(&envfilepath).unwrap();
 
-    // Reading the env file
-    let env = fs::read_to_string(&envfilepath).unwrap();
-
-    // Building the "export" line according to requested parameters
-    let mut export = String::from("export ");
-    export.push_str("ENVTEST=TESTVALUE");
-    export.push_str("\n");
-
-    // Already present ? we just set the variable for current process
-    assert_eq!(env.contains(&export), true);
+        // Already present ? we just set the variable for current process
+        assert_eq!(env.contains("export ENVTEST=TESTVALUE\n"), true);
     }
 
-    
+    #[test]
+    fn is_set_locally() {
+        assert_eq!(String::from("TESTVALUE"), crate::env::var("ENVTEST").unwrap());
     }
+}
 
     
