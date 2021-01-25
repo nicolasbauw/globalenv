@@ -38,7 +38,6 @@ pub fn set_var(var: &str, value: &str) -> io::Result<()> {
 
     let mut envfilepath = PathBuf::from(homedir);
     envfilepath.push(envfile);
-    println!("{:?}", envfilepath);
 
     // Reading the env file
     let env = fs::read_to_string(&envfilepath)?;
@@ -51,7 +50,7 @@ pub fn set_var(var: &str, value: &str) -> io::Result<()> {
     export.push_str("\n");
 
     // Already present ? we just set the variable for current process
-    if env.contains(&export) { println!("Already set in env file"); env::set_var(var, value); return Ok(()); }
+    if env.contains(&export) { env::set_var(var, value); return Ok(()); }
 
     // Not present ? we append the env file to set it globally
     let mut env_file = OpenOptions::new()
@@ -59,7 +58,6 @@ pub fn set_var(var: &str, value: &str) -> io::Result<()> {
         .create(true)
         .open(envfilepath)?;
     env_file.write(export.as_bytes())?;
-    println!("Set in env file");
 
     // Additionnaly, we set the env for current process
     env::set_var(var, value);
@@ -90,7 +88,6 @@ pub fn unset_var(var: &str) -> io::Result<()> {
 
     let mut envfilepath = PathBuf::from(homedir);
     envfilepath.push(envfile);
-    println!("{:?}", envfilepath);
 
     // Reading the env file
     let env = fs::read_to_string(&envfilepath)?;
@@ -101,15 +98,12 @@ pub fn unset_var(var: &str) -> io::Result<()> {
     export.push_str("=");
 
     // Variable not present in env file ? we just unset the variable for current process
-    if !env.contains(&export) { println!("Not present in env file"); env::remove_var(var); return Ok(()); }
+    if !env.contains(&export) { env::remove_var(var); return Ok(()); }
 
     // Present ? we remove it from the env file to unset it globally
-    println!("{}", env);
     let mut updated_env = String::new();
     for l in env.lines() { if !l.contains(var) { updated_env.push_str(l); updated_env.push_str("\n") } }
-    println!("{}", updated_env);
     fs::write(envfilepath, updated_env)?;
-    println!("Removed from env file");
 
     // Additionnaly, we unset the env for current process
     env::remove_var(var);
