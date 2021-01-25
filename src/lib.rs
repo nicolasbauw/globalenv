@@ -1,4 +1,5 @@
 //! Globally set or unset environment variables (and not just for the current process).
+//! Support for Windows, zsh and bash.
 //! Example:
 //! ```rust
 //! use globalenv::{set_var, unset_var};
@@ -13,7 +14,7 @@ use winreg::{ enums::*, RegKey };
 #[cfg(target_family = "unix")]
 use std::{ fs, io::prelude::*, path::PathBuf, fs::OpenOptions };
 
-/// Sets a global environment variable, usable also in current process without reload. Support for Windows, zsh and bash.
+/// Sets a global environment variable, usable also in current process without reload.
 #[cfg(target_os = "windows")]
 pub fn set_var(var: &str, value: &str) -> io::Result<()> {
     let hkcu = RegKey::predef(HKEY_CURRENT_USER);
@@ -65,7 +66,7 @@ pub fn set_var(var: &str, value: &str) -> io::Result<()> {
     Ok(())
 }
 
-/// Unsets both global and local (process) environment variable. Support for Windows, zsh and bash.
+/// Unsets both global and local (process) environment variable.
 #[cfg(target_os = "windows")]
 pub fn unset_var(var: &str) -> io::Result<()> {
     let hkcu = RegKey::predef(HKEY_CURRENT_USER);
