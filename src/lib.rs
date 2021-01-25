@@ -12,7 +12,30 @@ use std::{io, env};
 use winreg::{ enums::*, RegKey };
 
 #[cfg(target_family = "unix")]
-use std::{ fs, io::prelude::*, path::PathBuf, fs::OpenOptions };
+use std::{ fs, fmt, error, io::prelude::*, path::PathBuf, fs::OpenOptions };
+
+#[derive(Debug, PartialEq, Eq, Clone)]
+pub enum EnvError {
+    // Unsupported shell
+    UnsupportedShell,
+}
+
+impl error::Error for EnvError {}
+
+impl fmt::Display for EnvError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str("TZfile error : ")?;
+        f.write_str(match self {
+            EnvError::UnsupportedShell => "Unsupported shell",
+        })
+    }
+}
+
+impl From<EnvError> for std::io::Error {
+    fn from(e: EnvError) -> std::io::Error {
+        std::io::Error::new(std::io::ErrorKind::Other, e)
+    }
+}
 
 /// Sets a global environment variable, usable also in current process without reload.
 #[cfg(target_os = "windows")]
@@ -34,7 +57,7 @@ pub fn set_var(var: &str, value: &str) -> io::Result<()> {
     let envfile = match shell.as_str() {
         "/bin/zsh" => ".zshenv",
         "/bin/bash" => ".bashrc",
-        _ => "TDB"
+        _ => "TBD"
     };
 
     let mut envfilepath = PathBuf::from(homedir);
