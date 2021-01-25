@@ -78,7 +78,7 @@ pub fn unset_var(var: &str) -> io::Result<()> {
 }
 
 #[cfg(target_family = "unix")]
-pub fn unset_var(var: &str, value: &str) -> io::Result<()> {
+pub fn unset_var(var: &str) -> io::Result<()> {
     // Getting env and building env file path
     let homedir = env::var("HOME").unwrap();
     let shell = env::var("SHELL").unwrap();
@@ -99,15 +99,14 @@ pub fn unset_var(var: &str, value: &str) -> io::Result<()> {
     let mut export = String::from("export ");
     export.push_str(var);
     export.push_str("=");
-    export.push_str(value);
-    export.push_str("\n");
 
     // Variable not present in env file ? we just unset the variable for current process
     if !env.contains(&export) { println!("Not present in env file"); env::remove_var(var); return Ok(()); }
 
     // Present ? we remove it from the env file to unset it globally
     println!("{}", env);
-    let updated_env = env.replace(&export, "\x08");
+    let mut updated_env = String::new();
+    for l in env.lines() { if !l.contains(var) { updated_env.push_str(l); updated_env.push_str("\n") } }
     println!("{}", updated_env);
     fs::write(envfilepath, updated_env)?;
     println!("Removed from env file");
@@ -121,8 +120,8 @@ pub fn unset_var(var: &str, value: &str) -> io::Result<()> {
 /* Run the tests in a single thread context !
 $env:RUST_TEST_THREADS=1; cargo test */
 
-#[cfg(test)]
 #[cfg(target_os = "windows")]
+#[cfg(test)]
 mod tests {
     use winreg::enums::*;
     use winreg::RegKey;
@@ -163,5 +162,37 @@ mod tests {
 
 #[cfg(target_family = "unix")]
 mod tests {
+    use std::{ env, fs, io::prelude::*, path::PathBuf, fs::OpenOptions };
+    #[test]
+    fn is_set_globally() {
+    crate::set_var("ENVTEST", "TESTVALUE").unwrap();
 
-}
+    // Getting env and building env file path
+    let homedir = env::var("HOME").unwrap();
+    let shell = env::var("SHELL").unwrap();
+    let envfile = match shell.as_str() {
+        "/bin/zsh" => ".zshenv",
+        "/bin/bash" => ".bashrc",
+        _ => "TDB"
+    };
+
+    let mut envfilepath = PathBuf::from(homedir);
+    envfilepath.push(envfile);
+    println!("{:?}", envfilepath);
+
+    // Reading the env file
+    let env = fs::read_to_string(&envfilepath).unwrap();
+
+    // Building the "export" line according to requested parameters
+    let mut export = String::from("export ");
+    export.push_str("ENVTEST=TESTVALUE");
+    export.push_str("\n");
+
+    // Already present ? we just set the variable for current process
+    assert_eq!(env.contains(&export), true);
+    }
+
+    
+    }
+
+    
