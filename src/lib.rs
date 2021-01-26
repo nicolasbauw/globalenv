@@ -213,7 +213,6 @@ mod tests {
         // Reading the env file
         let env = crate::fs::read_to_string(&envfilepath).unwrap();
 
-        // Already present ? we just set the variable for current process
         assert_eq!(env.contains("export ENVTEST=TESTVALUE\n"), true);
     }
 
