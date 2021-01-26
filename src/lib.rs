@@ -220,6 +220,33 @@ mod tests {
     fn is_set_locally() {
         assert_eq!(String::from("TESTVALUE"), crate::env::var("ENVTEST").unwrap());
     }
+
+    #[test]
+    fn is_unset_globally() {
+        crate::unset_var("ENVTEST").unwrap();
+        // Getting env and building env file path
+        let homedir = crate::env::var("HOME").unwrap();
+        let shell = crate::env::var("SHELL").unwrap();
+        let envfile = match shell.as_str() {
+            "/bin/zsh" => ".zshenv",
+            "/bin/bash" => ".bashrc",
+            _ => panic!("Unsupported shell")
+        };
+
+        let mut envfilepath = crate::PathBuf::from(homedir);
+        envfilepath.push(envfile);
+
+        // Reading the env file
+        let env = crate::fs::read_to_string(&envfilepath).unwrap();
+
+        assert_eq!(env.contains("export ENVTEST=TESTVALUE\n"), false);
+    }
+
+    #[test]
+    #[should_panic]
+    fn is_unset_locally() {
+        crate::env::var("ENVTEST").unwrap();
+    }
 }
 
     
