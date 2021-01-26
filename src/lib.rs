@@ -1,5 +1,5 @@
 //! Globally set or unset environment variables (and not just for the current process).
-//! Support for Windows, zsh and bash.
+//! Support for Windows, zsh and bash (MacOS and most Linux distros)
 //! Example:
 //! ```rust
 //! use globalenv::{set_var, unset_var};
