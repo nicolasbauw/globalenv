@@ -204,7 +204,7 @@ mod tests {
         let envfile = match shell.as_str() {
             "/bin/zsh" => ".zshenv",
             "/bin/bash" => ".bashrc",
-            _ => "TDB"
+            _ => panic!("Unsupported shell")
         };
 
         let mut envfilepath = crate::PathBuf::from(homedir);
