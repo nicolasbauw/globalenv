@@ -1,5 +1,5 @@
 //! Globally set or unset environment variables (and not just for the current process).
-//! Support for Windows, zsh and bash (MacOS and most Linux distros)
+//! Support for Windows, zsh and bash (MacOS and most Linux distros).
 //! Example:
 //! ```rust
 //! use globalenv::{set_var, unset_var};
@@ -49,8 +49,8 @@ impl From<std::env::VarError> for EnvError {
     }
 }
 
-/// Sets a global environment variable, usable also in current process without reload.
 #[cfg(target_os = "windows")]
+/// Sets a global environment variable, usable also in current process without reload.
 pub fn set_var(var: &str, value: &str) -> Result<(), EnvError> {
     let hkcu = RegKey::predef(HKEY_CURRENT_USER);
     let key = hkcu.open_subkey_with_flags("Environment", KEY_SET_VALUE)?;
@@ -62,6 +62,7 @@ pub fn set_var(var: &str, value: &str) -> Result<(), EnvError> {
 }
 
 #[cfg(target_family = "unix")]
+/// Sets a global environment variable, usable also in current process without reload.
 pub fn set_var(var: &str, value: &str) -> Result<(), EnvError> {
     // Getting env and building env file path
     let homedir = env::var("HOME")?;
@@ -101,8 +102,8 @@ pub fn set_var(var: &str, value: &str) -> Result<(), EnvError> {
     Ok(())
 }
 
-/// Unsets both global and local (process) environment variable.
 #[cfg(target_os = "windows")]
+/// Unsets both global and local (process) environment variable.
 pub fn unset_var(var: &str) -> Result<(), EnvError> {
     let hkcu = RegKey::predef(HKEY_CURRENT_USER);
     let key = hkcu.open_subkey_with_flags("Environment", KEY_SET_VALUE)?;
@@ -112,6 +113,7 @@ pub fn unset_var(var: &str) -> Result<(), EnvError> {
 }
 
 #[cfg(target_family = "unix")]
+/// Unsets both global and local (process) environment variable.
 pub fn unset_var(var: &str) -> Result<(), EnvError> {
     // Getting env and building env file path
     let homedir = env::var("HOME")?;
