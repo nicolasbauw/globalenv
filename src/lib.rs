@@ -60,7 +60,7 @@ pub fn set_var(var: &str, value: &str) -> Result<(), EnvError> {
     let envfile = match shell.as_str() {
         "/bin/zsh" => ".zshenv",
         "/bin/bash" => ".bashrc",
-        _ => "TBD"
+        _ => return Err(EnvError::UnsupportedShell)
     };
 
     let mut envfilepath = PathBuf::from(homedir);
@@ -110,7 +110,7 @@ pub fn unset_var(var: &str) -> Result<(), EnvError> {
     let envfile = match shell.as_str() {
         "/bin/zsh" => ".zshenv",
         "/bin/bash" => ".bashrc",
-        _ => "TDB"
+        _ => return Err(EnvError::UnsupportedShell)
     };
 
     let mut envfilepath = PathBuf::from(homedir);
