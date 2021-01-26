@@ -16,11 +16,11 @@ use std::{ fs, io::prelude::*, path::PathBuf, fs::OpenOptions };
 
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub enum EnvError {
-    // Unsupported shell
+    /// Unsupported shell
     UnsupportedShell,
-    // IO Error
+    /// IO Error (file or registry operation)
     IOError,
-    // ENV error
+    /// ENV error (can't get or set variable)
     VarError
 }
 
