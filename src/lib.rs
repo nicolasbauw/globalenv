@@ -19,7 +19,9 @@ pub enum EnvError {
     // Unsupported shell
     UnsupportedShell,
     // IO Error
-    IOError
+    IOError,
+    // ENV error
+    VarError
 }
 
 impl error::Error for EnvError {}
@@ -30,6 +32,7 @@ impl fmt::Display for EnvError {
         f.write_str(match self {
             EnvError::UnsupportedShell => "Unsupported shell",
             EnvError::IOError => "I/O error",
+            EnvError::VarError => "error while getting or setting env",
         })
     }
 }
@@ -37,6 +40,12 @@ impl fmt::Display for EnvError {
 impl From<std::io::Error> for EnvError {
     fn from(_e: std::io::Error) -> EnvError {
         EnvError::IOError
+    }
+}
+
+impl From<std::env::VarError> for EnvError {
+    fn from(_e: std::env::VarError) -> EnvError {
+        EnvError::VarError
     }
 }
 
@@ -55,8 +64,8 @@ pub fn set_var(var: &str, value: &str) -> Result<(), EnvError> {
 #[cfg(target_family = "unix")]
 pub fn set_var(var: &str, value: &str) -> Result<(), EnvError> {
     // Getting env and building env file path
-    let homedir = env::var("HOME").unwrap();
-    let shell = env::var("SHELL").unwrap();
+    let homedir = env::var("HOME")?;
+    let shell = env::var("SHELL")?;
     let envfile = match shell.as_str() {
         "/bin/zsh" => ".zshenv",
         "/bin/bash" => ".bashrc",
@@ -105,8 +114,8 @@ pub fn unset_var(var: &str) -> Result<(), EnvError> {
 #[cfg(target_family = "unix")]
 pub fn unset_var(var: &str) -> Result<(), EnvError> {
     // Getting env and building env file path
-    let homedir = env::var("HOME").unwrap();
-    let shell = env::var("SHELL").unwrap();
+    let homedir = env::var("HOME")?;
+    let shell = env::var("SHELL")?;
     let envfile = match shell.as_str() {
         "/bin/zsh" => ".zshenv",
         "/bin/bash" => ".bashrc",
