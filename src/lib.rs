@@ -7,39 +7,42 @@
 //! unset_var("ENVTEST").unwrap();
 //! ```
 
-use std::{io, env};
+use std::{env, fmt, error};
 #[cfg(target_os = "windows")]
 use winreg::{ enums::*, RegKey };
 
 #[cfg(target_family = "unix")]
-use std::{ fs, fmt, error, io::prelude::*, path::PathBuf, fs::OpenOptions };
+use std::{ fs, io::prelude::*, path::PathBuf, fs::OpenOptions };
 
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub enum EnvError {
     // Unsupported shell
     UnsupportedShell,
+    // IO Error
+    IOError
 }
 
 impl error::Error for EnvError {}
 
 impl fmt::Display for EnvError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_str("TZfile error : ")?;
+        f.write_str("ENV operation error : ")?;
         f.write_str(match self {
             EnvError::UnsupportedShell => "Unsupported shell",
+            EnvError::IOError => "I/O error",
         })
     }
 }
 
-impl From<EnvError> for std::io::Error {
-    fn from(e: EnvError) -> std::io::Error {
-        std::io::Error::new(std::io::ErrorKind::Other, e)
+impl From<std::io::Error> for EnvError {
+    fn from(_e: std::io::Error) -> EnvError {
+        EnvError::IOError
     }
 }
 
 /// Sets a global environment variable, usable also in current process without reload.
 #[cfg(target_os = "windows")]
-pub fn set_var(var: &str, value: &str) -> io::Result<()> {
+pub fn set_var(var: &str, value: &str) -> Result<(), EnvError> {
     let hkcu = RegKey::predef(HKEY_CURRENT_USER);
     let key = hkcu.open_subkey_with_flags("Environment", KEY_SET_VALUE)?;
     // Setting the variable globally
@@ -50,7 +53,7 @@ pub fn set_var(var: &str, value: &str) -> io::Result<()> {
 }
 
 #[cfg(target_family = "unix")]
-pub fn set_var(var: &str, value: &str) -> io::Result<()> {
+pub fn set_var(var: &str, value: &str) -> Result<(), EnvError> {
     // Getting env and building env file path
     let homedir = env::var("HOME").unwrap();
     let shell = env::var("SHELL").unwrap();
@@ -91,7 +94,7 @@ pub fn set_var(var: &str, value: &str) -> io::Result<()> {
 
 /// Unsets both global and local (process) environment variable.
 #[cfg(target_os = "windows")]
-pub fn unset_var(var: &str) -> io::Result<()> {
+pub fn unset_var(var: &str) -> Result<(), EnvError> {
     let hkcu = RegKey::predef(HKEY_CURRENT_USER);
     let key = hkcu.open_subkey_with_flags("Environment", KEY_SET_VALUE)?;
     key.delete_value(var)?;
@@ -100,7 +103,7 @@ pub fn unset_var(var: &str) -> io::Result<()> {
 }
 
 #[cfg(target_family = "unix")]
-pub fn unset_var(var: &str) -> io::Result<()> {
+pub fn unset_var(var: &str) -> Result<(), EnvError> {
     // Getting env and building env file path
     let homedir = env::var("HOME").unwrap();
     let shell = env::var("SHELL").unwrap();
