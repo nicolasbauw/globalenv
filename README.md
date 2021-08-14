@@ -12,4 +12,4 @@ set_var("ENVTEST", "TESTVALUE").unwrap();
 unset_var("ENVTEST").unwrap();
 ```
 
-License: GPL-3.0
+License: MIT
