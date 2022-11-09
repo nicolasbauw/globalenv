@@ -68,6 +68,7 @@ pub fn set_var(var: &str, value: &str) -> Result<(), EnvError> {
     let homedir = env::var("HOME")?;
     let shell = env::var("SHELL")?;
     let envfile = match shell.as_str() {
+        "/usr/bin/zsh" => ".zshenv",
         "/bin/zsh" => ".zshenv",
         "/bin/bash" => ".bashrc",
         _ => return Err(EnvError::UnsupportedShell)
@@ -119,6 +120,7 @@ pub fn unset_var(var: &str) -> Result<(), EnvError> {
     let homedir = env::var("HOME")?;
     let shell = env::var("SHELL")?;
     let envfile = match shell.as_str() {
+        "/usr/bin/zsh" => ".zshenv",
         "/bin/zsh" => ".zshenv",
         "/bin/bash" => ".bashrc",
         _ => return Err(EnvError::UnsupportedShell)
@@ -202,6 +204,7 @@ mod tests {
         let homedir = crate::env::var("HOME").unwrap();
         let shell = crate::env::var("SHELL").unwrap();
         let envfile = match shell.as_str() {
+            "/usr/bin/zsh" => ".zshenv",
             "/bin/zsh" => ".zshenv",
             "/bin/bash" => ".bashrc",
             _ => panic!("Unsupported shell")
@@ -228,6 +231,7 @@ mod tests {
         let homedir = crate::env::var("HOME").unwrap();
         let shell = crate::env::var("SHELL").unwrap();
         let envfile = match shell.as_str() {
+            "/usr/bin/zsh" => ".zshenv",
             "/bin/zsh" => ".zshenv",
             "/bin/bash" => ".bashrc",
             _ => panic!("Unsupported shell")
